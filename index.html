@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Управління з клавіатури</title>
+</head>
+<body>
+    <canvas id="canvas" width="400" height="400"></canvas>
+    <script src="https://code.jquery.com/jquery-2.1.0.js"></script>
+    
+    <script>
+        // Обработчик події
+
+        let canvas = document.getElementById("canvas");
+        let ctx = canvas.getContext("2d");
+        let width = canvas.width;//ширина міняється автоматично
+        let height = canvas.height;//висота міняється автоматично
+        
+        //Функція для відмалювання кола
+
+        let circle = function(x, y, radius, fillCircle){
+            ctx.beginPath();//початок шляху
+            ctx.arc(x, y, radius, 0, Math.PI * 2, false);// малює коло
+            if (fillCircle){//вимальовуємо круг чи окружність
+                ctx.fill();
+            } else {
+                ctx.stroke();
+            }
+        };
+
+        //Створюємо конструктор для мяча.
+
+        let Ball = function(){
+            this.x = width / 2;
+            this.y = height / 2;
+            this.xSpeed = 5;
+            this.ySpeed = 0;
+        };
+
+        //Cтворюємо рух мяча
+
+        Ball.prototype.move = function(){
+            this.x += this.xSpeed;
+            this.y += this.ySpeed;
+            if (this.x < 0){
+                this.x = width;
+            } else if (this.x > width){
+                this.x = 0;
+            }
+            if (this.y < 0){
+                this.y = height;
+            } else if (this.y > height){
+                this.y = 0;
+            }
+        };
+
+        //Функція відмалючання мяча
+
+        Ball.prototype.draw = function(){
+            circle(this.x, this.y, 10, true);
+        };
+
+        //Метод управління мячем
+
+        Ball.prototype.setDirection = function(direction){
+            if (direction === "up"){
+                this.xSpeed = 0;
+                this.ySpeed = -5;
+            } else if (direction === "down"){
+                this.xSpeed = 0;
+                this.ySpeed = 5;
+            } else if (direction === "left"){
+                this.xSpeed = -5;
+                this.ySpeed = 0;
+            } else if (direction === "right"){
+                this.xSpeed = 5;
+                this.ySpeed = 0;
+            } else if (direction === "stop"){
+                this.xSpeed = 0;
+                this.ySpeed = 0;
+            }
+        }
+
+        let ball = new Ball();//Створюємо обєкт мяч.
+        let keyActions = {// список клавіш
+            32: "stop",//пробіл
+            37: "left",//вліво
+            38: "up",//вверх
+            39: "right",//вправо
+            40: "down"//вниз
+        };
+
+        $("body").keydown(function(event){//пишемо подію для всього body.
+            //console.log(keyActions[event.keyCode]);// номера клавіш на клавіатурі дивимося в Console.
+            let direction = keyActions[event.keyCode];
+            ball.setDirection(direction);//викликаємо функцію з направленням.
+        }); 
+
+        //Пишемо анімацію
+
+        setInterval(function() {
+            ctx.clearRect(0, 0, width, height);//очищуємо холст
+            ball.draw();//відмальовуємо мяча
+            ball.move();//рух мяча
+            ctx.strokeRect(0, 0, width, height);//знову відмальовує границю.
+        }, 30);
+    </script>
+</body>
+</html>
